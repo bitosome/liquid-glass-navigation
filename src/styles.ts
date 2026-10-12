@@ -147,6 +147,8 @@ export const NAVIGATION_CSS = String.raw`
   }
 
   :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header ha-tab-group::part(nav) {
+    display: flex;
+    min-width: 0;
     min-height: 52px;
     padding: 0;
     border: 0;
@@ -160,17 +162,38 @@ export const NAVIGATION_CSS = String.raw`
     padding: 0;
   }
 
-  /* Keep native overflow discovery, scrolling, arrows and keyboard navigation. */
+  /* Native arrows remain conditional and clickable, but consume layout space
+     instead of covering edge tabs. The inner overflow-auto nav flexes between
+     them. HA ties the plain-button quiet colour to the underline, which is
+     transparent here; override that token at the button, not just host color. */
   :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header ha-tab-group::part(scroll-button) {
+    --wa-color-neutral-on-quiet: var(--primary-text-color, #1c1c1e);
+    --wa-color-on-quiet: var(--primary-text-color, #1c1c1e);
+    position: static;
+    flex: 0 0 44px;
     width: 44px;
     min-width: 44px;
     height: 48px;
-    inset-block-start: 2px;
-    inset-block-end: 2px;
+    margin: 0;
+    padding: 0;
+    inset: auto;
     border-radius: 24px;
     color: var(--primary-text-color, #1c1c1e);
-    background: var(--lgn-opaque);
-    z-index: 1;
+    background: transparent;
+  }
+
+  :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header ha-tab-group::part(scroll-button__base) {
+    box-sizing: border-box;
+    width: 44px;
+    min-width: 44px;
+    height: 48px;
+    min-height: 48px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 24px;
+    color: var(--primary-text-color, #1c1c1e);
+    background: transparent;
   }
 
   :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header ha-tab-group-tab {
@@ -287,6 +310,12 @@ export const NAVIGATION_CSS = String.raw`
       backdrop-filter: none;
     }
     :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header ha-tab-group::part(scroll-button) {
+      --wa-color-neutral-on-quiet: ButtonText;
+      --wa-color-on-quiet: ButtonText;
+      color: ButtonText;
+      background: ButtonFace;
+    }
+    :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header ha-tab-group::part(scroll-button__base) {
       color: ButtonText;
       background: ButtonFace;
     }
