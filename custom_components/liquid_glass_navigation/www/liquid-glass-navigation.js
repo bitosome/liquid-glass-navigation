@@ -1,4 +1,4 @@
-const t=String.raw`
+const e="data-liquid-glass-drawer-control",t=["--lgn-glass","--lgn-opaque","--lgn-rim","--lgn-sheen","--lgn-shadow","--lgn-hover","--lgn-safe-bottom"],i=["wa-show","wa-after-show","wa-hide","wa-after-hide"],o=`\n[${e}] { position:fixed; inset:auto; margin:0; padding:0; border:1px solid var(--lgn-rim,rgba(255,255,255,.6)); border-radius:50%; box-sizing:border-box; background:transparent; overflow:visible; box-shadow:var(--lgn-shadow,0 8px 28px #0003); bottom:calc(var(--lgn-safe-bottom,var(--safe-area-inset-bottom,env(safe-area-inset-bottom,0px))) + 12px); }\n[${e}]:popover-open { display:grid; animation:lgn-drawer-appear 160ms ease-out; }\n[${e}]::backdrop { background:transparent; pointer-events:none; }\n[${e}]::before { content:""; position:absolute; inset:0; z-index:-1; border-radius:inherit; pointer-events:none; background:linear-gradient(155deg,var(--lgn-sheen,#fff6),transparent 50%,var(--lgn-sheen,#fff6)),var(--lgn-glass,#fafbffc2); backdrop-filter:blur(26px) saturate(175%); -webkit-backdrop-filter:blur(26px) saturate(175%); }\n[${e}] button { display:flex; align-items:center; justify-content:center; width:100%; height:100%; min-width:44px; min-height:44px; margin:0; padding:0; border:0; border-radius:inherit; background:transparent; color:inherit; font:inherit; cursor:pointer; -webkit-tap-highlight-color:transparent; }\n[${e}] button:focus-visible { outline:2px solid var(--primary-color,#007aff); outline-offset:-4px; }\n[${e}] ha-icon { width:24px; height:24px; --mdc-icon-size:24px; }\n[${e}][data-opaque]::before { background:var(--lgn-opaque,#f9fafc); backdrop-filter:none; -webkit-backdrop-filter:none; }\n@media (hover:hover) { [${e}] button:hover { background:var(--lgn-hover,#0001); } }\n@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))) { [${e}]::before { background:var(--lgn-opaque,#f9fafc); } }\n@media (prefers-reduced-transparency:reduce),(prefers-contrast:more) { [${e}]::before { background:var(--lgn-opaque,#f9fafc); backdrop-filter:none; -webkit-backdrop-filter:none; } [${e}] { border-color:var(--divider-color,currentColor); } }\n@media (forced-colors:active) { [${e}] { color:ButtonText !important; border-color:ButtonText; box-shadow:none; } [${e}]::before { background:ButtonFace; backdrop-filter:none; -webkit-backdrop-filter:none; } }\n@media (prefers-reduced-motion:reduce) { [${e}]:popover-open { animation:none; } }\n@keyframes lgn-drawer-appear { from { opacity:0; scale:.9; } to { opacity:1; scale:1; } }\n`;class a{root;changed;drawer;wa;dialog;observed=new Set;observer;resize;popover;button;shown=!1;generation=0;constructor(e,t){this.root=e,this.changed=t}update(i,a,r){const s=function(e){let t=e;for(;t;){if(t instanceof HTMLElement&&"ha-drawer"===t.localName)return t;t=t.parentNode??(11===t.nodeType&&"host"in t?t.host:null)}}(this.root);if(!s||!this.root.isConnected)return void this.restore();const n=s.shadowRoot?.querySelector("wa-drawer")??void 0,d=n?.shadowRoot?.querySelector('dialog[part="dialog"]')??void 0;this.bind(s,n,d);const l=a?.shadowRoot?.querySelector("ha-icon-button"),h="modal"===s.type||"modal"===s.getAttribute("type"),c=!0===s.open||s.hasAttribute("open"),p=this.popover?.isConnected&&this.popover.parentElement===d;if(this.popover&&!p&&this.clearAccessory(),!h||!d?.open||!c&&!p||!a||!i.contains(a)||!l||r.keyboard||"start"!==n?.getAttribute("placement"))return void this.clearAccessory();const g=i.ownerDocument.defaultView.getComputedStyle(i),u=d.offsetWidth||d.getBoundingClientRect().width,b="rtl"===(s.direction||s.getAttribute("direction")),v=function(e){const t=Number.parseFloat(e);return Number.isFinite(t)?Math.max(0,t):0}(g.getPropertyValue(b?"--lgn-safe-left":"--lgn-safe-right"));let f;if(Number.isFinite(u)&&u>0&&Number.isFinite(r.width))for(const[e,t,i]of[[64,12,12],[56,4,4],[44,4,4]])if(!(u+t+e+i+v>r.width)){f={left:b?r.width-u-t-e:u+t,size:e};break}if(f){if(!this.popover){const t=i.ownerDocument.createElement("div");if("function"!=typeof t.showPopover||"function"!=typeof t.hidePopover)return;t.setAttribute(e,""),t.setAttribute("popover","manual");const a=i.ownerDocument.createElement("style");a.textContent=o;const r=i.ownerDocument.createElement("button");r.type="button",r.setAttribute("data-drawer","close");const s=i.ownerDocument.createElement("ha-icon");s.setAttribute("icon","mdi:menu"),s.setAttribute("aria-hidden","true"),r.append(s),t.append(a,r),d.append(t),this.popover=t,this.button=r}this.button.setAttribute("aria-label",l.label||l.getAttribute("aria-label")||l.getAttribute("label")||"Close sidebar");for(const e of t){const t=g.getPropertyValue(e).trim();t?this.setStyle(e,t):this.popover.style.removeProperty(e)}if(this.setStyle("color",g.color||"var(--primary-text-color, #1c1c1e)"),this.setStyle("font",g.font||"inherit"),this.setStyle("left",`${f.left}px`),this.setStyle("width",`${f.size}px`),this.setStyle("height",`${f.size}px`),this.popover.toggleAttribute("data-opaque",this.root.hasAttribute("data-liquid-glass-opaque")),!this.shown)try{this.popover.showPopover(),this.shown=!0}catch{return void this.clearAccessory()}return f}this.clearAccessory()}setStyle(e,t){this.popover.style.getPropertyValue(e)!==t&&this.popover.style.setProperty(e,t)}lifecycle=e=>{if(e.target!==this.wa)return;const t=this.generation;queueMicrotask(()=>{t===this.generation&&(this.dialog?.open&&this.dialog.isConnected||this.clearAccessory(),this.changed())})};bind(t,o,a){const r=new Set([t,...t.shadowRoot?[t.shadowRoot]:[],...o?[o]:[],...o?.shadowRoot?[o.shadowRoot]:[]]);if(this.drawer===t&&this.wa===o&&this.dialog===a&&r.size===this.observed.size&&[...r].every(e=>this.observed.has(e)))return;this.unobserve(),this.dialog!==a&&this.clearAccessory(),this.drawer=t,this.wa=o,this.dialog=a,this.observed=r,this.observer=new MutationObserver(t=>{t.some(t=>{const i=t.target instanceof Element?t.target:t.target.parentElement;return!i?.closest(`[${e}]`)})&&(this.dialog?.open&&this.dialog.isConnected||this.clearAccessory(),this.changed())});for(const e of r)this.observer.observe(e,{childList:!0,subtree:!0,attributes:!0,attributeFilter:["open","type","direction"]});if(o)for(const e of i)o.addEventListener(e,this.lifecycle);a&&"undefined"!=typeof ResizeObserver&&(this.resize=new ResizeObserver(this.changed),this.resize.observe(a));const s=this.generation;for(const e of["ha-drawer","wa-drawer"])this.root.ownerDocument.defaultView?.customElements.whenDefined(e).then(()=>{s===this.generation&&this.changed()})}clearAccessory(){if(this.shown)try{this.popover?.hidePopover()}catch{}this.shown=!1,this.popover?.remove(),this.popover=void 0,this.button=void 0}unobserve(){if(this.generation++,this.observer?.disconnect(),this.observer=void 0,this.resize?.disconnect(),this.resize=void 0,this.wa)for(const e of i)this.wa.removeEventListener(e,this.lifecycle);this.observed.clear()}restore(){this.unobserve(),this.clearAccessory(),this.drawer=void 0,this.wa=void 0,this.dialog=void 0}destroy(){this.restore()}}const r=String.raw`
   :host([data-liquid-glass-navigation]) > div:not(.edit-mode) {
     --lgn-safe-top: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
     --lgn-safe-right: var(--safe-area-inset-right, env(safe-area-inset-right, 0px));
@@ -44,6 +44,7 @@ const t=String.raw`
       (var(--lgn-width, 100vw) - var(--lgn-safe-left) - var(--lgn-safe-right) - var(--lgn-bar-width)) / 2
     );
     width: var(--lgn-bar-width);
+    height: 66px;
     max-width: none;
     box-sizing: border-box;
     padding: 0;
@@ -58,6 +59,25 @@ const t=String.raw`
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
     transform: none;
+    opacity: 1;
+    transition:
+      opacity 140ms ease,
+      left 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      width 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      height 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      border-radius 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  /* The same native header contracts behind the modal drawer. Its interactive
+     close accessory is owned by the drawer adapter inside the modal scope. */
+  :host([data-liquid-glass-navigation][data-liquid-glass-collapsed]) > div:not(.edit-mode) > .header {
+    left: var(--lgn-collapse-left, var(--lgn-left, 0px));
+    width: var(--lgn-collapse-size, 64px);
+    height: var(--lgn-collapse-size, 64px);
+    border-radius: calc(var(--lgn-collapse-size, 64px) / 2);
+    /* Only the modal accessory paints here; avoid doubled glass and shadows. */
+    opacity: 0;
+    pointer-events: none;
   }
 
   /* The controller sets this only for an editable focus and a visible keyboard. */
@@ -90,6 +110,40 @@ const t=String.raw`
     border: 0;
     color: inherit;
     background: transparent;
+    transition: height 240ms ease, min-height 240ms ease, padding 240ms ease;
+  }
+
+  :host([data-liquid-glass-navigation][data-liquid-glass-collapsed]) > div:not(.edit-mode) > .header .toolbar {
+    height: calc(var(--lgn-collapse-size, 64px) - 2px);
+    min-height: calc(var(--lgn-collapse-size, 64px) - 2px);
+    padding: calc((var(--lgn-collapse-size, 64px) - 46px) / 2);
+    gap: 0;
+    justify-content: center;
+  }
+
+  :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header ha-tab-group,
+  :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header .action-items,
+  :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header .main-title {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 120ms ease 90ms;
+  }
+
+  /* Hidden controls cannot receive focus or spill outside the shrinking shell.
+     On expansion they fade back after the capsule has room for its contents. */
+  :host([data-liquid-glass-navigation][data-liquid-glass-collapsed]) > div:not(.edit-mode) > .header ha-tab-group,
+  :host([data-liquid-glass-navigation][data-liquid-glass-collapsed]) > div:not(.edit-mode) > .header .action-items,
+  :host([data-liquid-glass-navigation][data-liquid-glass-collapsed]) > div:not(.edit-mode) > .header .main-title {
+    flex: 0 0 0;
+    width: 0;
+    min-width: 0;
+    max-width: 0;
+    margin: 0;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: none;
   }
 
   :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header .main-title {
@@ -156,38 +210,10 @@ const t=String.raw`
     padding: 0;
   }
 
-  /* Native arrows remain conditional and clickable, but consume layout space
-     instead of covering edge tabs. The inner overflow-auto nav flexes between
-     them. HA ties the plain-button quiet colour to the underline, which is
-     transparent here; override that token at the button, not just host color. */
+  /* The adapter enables native without-scroll-controls. This prevents a flash
+     before the component reacts; native swipe/drag and keyboard behavior stay. */
   :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header ha-tab-group::part(scroll-button) {
-    --wa-color-neutral-on-quiet: var(--primary-text-color, #1c1c1e);
-    --wa-color-on-quiet: var(--primary-text-color, #1c1c1e);
-    position: static;
-    flex: 0 0 44px;
-    width: 44px;
-    min-width: 44px;
-    height: 48px;
-    margin: 0;
-    padding: 0;
-    inset: auto;
-    border-radius: 24px;
-    color: var(--primary-text-color, #1c1c1e);
-    background: transparent;
-  }
-
-  :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header ha-tab-group::part(scroll-button__base) {
-    box-sizing: border-box;
-    width: 44px;
-    min-width: 44px;
-    height: 48px;
-    min-height: 48px;
-    margin: 0;
-    padding: 0;
-    border: 0;
-    border-radius: 24px;
-    color: var(--primary-text-color, #1c1c1e);
-    background: transparent;
+    display: none;
   }
 
   :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header ha-tab-group-tab {
@@ -283,6 +309,13 @@ const t=String.raw`
   }
 
   @media (prefers-reduced-motion: reduce) {
+    :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header,
+    :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header .toolbar,
+    :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header ha-tab-group,
+    :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header .action-items,
+    :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header .main-title {
+      transition: none;
+    }
     :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header ha-tab-group-tab::part(base) {
       transition: none;
       animation: none;
@@ -303,16 +336,6 @@ const t=String.raw`
       -webkit-backdrop-filter: none;
       backdrop-filter: none;
     }
-    :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header ha-tab-group::part(scroll-button) {
-      --wa-color-neutral-on-quiet: ButtonText;
-      --wa-color-on-quiet: ButtonText;
-      color: ButtonText;
-      background: ButtonFace;
-    }
-    :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header ha-tab-group::part(scroll-button__base) {
-      color: ButtonText;
-      background: ButtonFace;
-    }
     :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header ha-tab-group-tab[active]:not([disabled])::part(base),
     :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header ha-tab-group-tab[aria-selected="true"]:not([disabled])::part(base) {
       color: HighlightText;
@@ -321,4 +344,4 @@ const t=String.raw`
       forced-color-adjust: none;
     }
   }
-`,e="0.1.0",i={enabled:!1,scope:"mobile",reduce_transparency:!1,version:e};const a="data-liquid-glass-navigation",o=[a,"data-liquid-glass-opaque","data-liquid-glass-dark","data-liquid-glass-keyboard"],r=["--lgn-left","--lgn-width","--lgn-height"],s="liquid-glass-navigation-style";function n(t){for(const e of t.querySelectorAll("hui-sections-view,hui-view,hui-view-container"))if(e.shadowRoot){if("hui-sections-view"===e.localName&&e.shadowRoot.querySelector(".wrapper.has-sidebar-tabs .sidebar-tabs"))return!0;if(n(e.shadowRoot))return!0}return!1}class d{root;changed;style;resize;measured;wrapper;structural;active=!1;constructor(t,e){this.root=t,this.changed=e,t.shadowRoot&&(this.structural=new MutationObserver(t=>{t.some(t=>!t.target.closest?.(`#${s}`))&&e()}),this.structural.observe(t.shadowRoot,{childList:!0,subtree:!0,attributes:!0,attributeFilter:["class"]}))}update(e,i){const o=function(t){const e=t.shadowRoot;if(!e)return;const i=e.querySelector(".header"),a=i?.parentElement,o=i?.querySelector('slot[name="toolbar"]'),r=o?.querySelector(".toolbar"),s=a&&[...a.children].find(t=>"hui-view-container"===t.localName&&"view"===t.id);if(!(i&&a&&a.parentNode===e&&o&&r&&r.parentNode===o&&s))return;if(o.assignedElements().length||!r.querySelector(".action-items"))return;const n=r.querySelector("ha-tab-group");if(n){const t=[...n.children].filter(t=>"nav"===t.getAttribute("slot"));if(!t.length||t.some(t=>"ha-tab-group-tab"!==t.localName))return}else if(!r.querySelector(".main-title"))return;return{wrapper:a,header:i,toolbar:r,view:s}}(this.root);if(!(e.enabled&&!i.escape&&("all"===e.scope||i.width<=767))||!o||!this.root.isConnected||o.wrapper.classList.contains("edit-mode")||this.root.lovelace?.editMode||n(o.view))return void this.restore();const r=o.wrapper.getBoundingClientRect(),d=Math.max(0,r.left),l=Math.min(i.width,r.right);l-d<180?this.restore():(this.style?.isConnected||(this.style=this.root.ownerDocument.createElement("style"),this.style.id=s,this.style.textContent=t,this.root.shadowRoot.append(this.style)),this.root.setAttribute(a,h),this.root.toggleAttribute("data-liquid-glass-opaque",e.reduce_transparency),this.root.toggleAttribute("data-liquid-glass-dark",i.dark),this.root.toggleAttribute("data-liquid-glass-keyboard",i.keyboard),this.setProperty("--lgn-left",Math.round(100*d)/100+"px"),this.setProperty("--lgn-width",Math.round(100*(l-d))/100+"px"),this.setProperty("--lgn-height",`${Math.max(64,Math.ceil(o.header.getBoundingClientRect().height))}px`),this.active=!0,this.measured===o.header&&this.wrapper===o.wrapper||(this.resize?.disconnect(),"undefined"!=typeof ResizeObserver&&(this.resize=new ResizeObserver(this.changed),this.resize.observe(o.header),this.resize.observe(o.wrapper)),this.measured=o.header,this.wrapper=o.wrapper))}setProperty(t,e){this.root.style.getPropertyValue(t)!==e&&this.root.style.setProperty(t,e)}restore(){if(this.active||this.style){this.active=!1,this.style?.remove(),this.style=void 0,this.resize?.disconnect(),this.resize=void 0,this.measured=void 0,this.wrapper=void 0;for(const t of o)this.root.removeAttribute(t);for(const t of r)this.root.style.removeProperty(t)}}destroy(){this.restore(),this.structural?.disconnect()}}const h="1";function l(t){try{Promise.resolve(t?.()).catch(()=>{})}catch{}}class c{doc;win;config={...i};adapters=new Map;observers=new Map;connection;unsubscribe;onDisconnected;onReady;generation=0;frame;health;stopped=!0;retryAfter=0;layoutHeight=0;layoutWidth=0;constructor(t=document,e=window){this.doc=t,this.win=e}start(){if(this.stopped){this.stopped=!1,this.layoutHeight=this.win.innerHeight,this.layoutWidth=this.win.innerWidth;for(const t of["resize","location-changed","popstate","focusin","focusout"])this.win.addEventListener(t,this.schedule);this.doc.addEventListener("visibilitychange",this.schedule),this.win.visualViewport?.addEventListener("resize",this.schedule),this.win.visualViewport?.addEventListener("scroll",this.schedule),this.health=this.win.setInterval(()=>{this.doc.hidden||this.schedule()},2e3),this.reconcile()}}schedule=()=>{this.stopped||void 0!==this.frame||(this.frame=this.win.requestAnimationFrame(()=>{this.frame=void 0,this.reconcile()}))};reconcile(){if(this.stopped)return;const{roots:t,scopes:e}=function(t){const e=new Set,i=new Set,a=t=>{if(!i.has(t)){i.add(t);for(const i of t.querySelectorAll("home-assistant,home-assistant-main,partial-panel-resolver,ha-panel-lovelace,hui-root"))"hui-root"!==i.localName?i.shadowRoot&&a(i.shadowRoot):e.add(i)}};return a(t),{roots:e,scopes:i}}(this.doc);for(const[t,i]of this.observers)e.has(t)||(i.disconnect(),this.observers.delete(t));for(const t of e)if(!this.observers.has(t)){const e=new MutationObserver(this.schedule);e.observe(t,{childList:!0,subtree:!0}),this.observers.set(t,e)}for(const[e,i]of this.adapters)t.has(e)||(i.destroy(),this.adapters.delete(e));for(const e of t)!this.adapters.has(e)&&e.shadowRoot&&this.adapters.set(e,new d(e,this.schedule));const i=this.doc.querySelector("home-assistant"),a=i?.hass?.connection;(a!==this.connection||a&&!this.unsubscribe&&Date.now()>=this.retryAfter)&&this.connect(a),this.apply(i)}apply(t=this.doc.querySelector("home-assistant")){const e=function(t){let e=t.activeElement;for(;e?.shadowRoot?.activeElement;)e=e.shadowRoot.activeElement;return e instanceof HTMLElement&&(!(!e.isContentEditable&&"textarea"!==e.localName)||"input"===e.localName&&!["button","submit","reset","checkbox","radio","range","color","file","hidden"].includes(e.type))}(this.doc);(!e||Math.abs(this.win.innerWidth-this.layoutWidth)>80)&&(this.layoutHeight=this.win.innerHeight,this.layoutWidth=this.win.innerWidth);const i=this.win.visualViewport?.height??this.win.innerHeight,a=e&&i<this.layoutHeight-140&&i<.8*this.layoutHeight,o="off"===new URL(this.win.location.href).searchParams.get("liquid_glass"),r=this.win.matchMedia("(prefers-color-scheme: dark)").matches;for(const[e,i]of this.adapters)i.update(this.config,{width:this.win.innerWidth,keyboard:a,escape:o,dark:e.hass?.themes?.darkMode??t?.hass?.themes?.darkMode??r})}async connect(t){if(this.disconnect(),this.connection=t,!t)return;const e=this.generation;this.retryAfter=Number.POSITIVE_INFINITY;const a=()=>!this.stopped&&t===this.connection&&e===this.generation;this.onDisconnected=()=>{a()&&(this.config={...i},this.restoreAll())},this.onReady=()=>{a()&&queueMicrotask(()=>{a()&&this.connect(t)})},t.addEventListener?.("disconnected",this.onDisconnected),t.addEventListener?.("ready",this.onReady);try{const a=await t.subscribeMessage(t=>{this.stopped||e!==this.generation||(this.config=function(t){if(!t||"object"!=typeof t)return{...i};const e=t;return"boolean"==typeof e.enabled&&["mobile","all"].includes(String(e.scope))&&"boolean"==typeof e.reduce_transparency&&"string"==typeof e.version?{enabled:e.enabled,scope:e.scope,reduce_transparency:e.reduce_transparency,version:e.version}:{...i}}(t),this.config.enabled?this.apply():this.restoreAll())},{type:"liquid_glass_navigation/subscribe"},{resubscribe:!1});if(this.stopped||e!==this.generation)return void l(a);this.unsubscribe=a}catch{if(e!==this.generation)return;this.config={...i},this.restoreAll(),this.retryAfter=Date.now()+1e4}}restoreAll(){for(const t of this.adapters.values())t.restore()}disconnect(){this.generation++,this.onDisconnected&&this.connection?.removeEventListener?.("disconnected",this.onDisconnected),this.onReady&&this.connection?.removeEventListener?.("ready",this.onReady),this.onDisconnected=void 0,this.onReady=void 0,l(this.unsubscribe),this.unsubscribe=void 0,this.connection=void 0,this.config={...i},this.restoreAll(),this.retryAfter=0}stop(){if(!this.stopped){this.stopped=!0,this.disconnect();for(const t of["resize","location-changed","popstate","focusin","focusout"])this.win.removeEventListener(t,this.schedule);this.doc.removeEventListener("visibilitychange",this.schedule),this.win.visualViewport?.removeEventListener("resize",this.schedule),this.win.visualViewport?.removeEventListener("scroll",this.schedule),void 0!==this.frame&&this.win.cancelAnimationFrame(this.frame),this.frame=void 0,this.win.clearInterval(this.health),this.health=void 0;for(const t of this.observers.values())t.disconnect();this.observers.clear();for(const t of this.adapters.values())t.destroy();this.adapters.clear()}}}const g=Symbol.for("liquid-glass-navigation.controller"),p=window,u=p[g];if(!u||u.version!==e){u?.controller.stop();const t=new c;p[g]={version:e,controller:t},t.start(),console.info(`LIQUID GLASS NAVIGATION ${e}`)}
+`,s="0.1.0",n={enabled:!1,scope:"mobile",reduce_transparency:!1,version:s};const d="data-liquid-glass-navigation",l=[d,"data-liquid-glass-opaque","data-liquid-glass-dark","data-liquid-glass-keyboard","data-liquid-glass-collapsed"],h=["--lgn-left","--lgn-width","--lgn-height","--lgn-collapse-left","--lgn-collapse-size"],c="liquid-glass-navigation-style";function p(e){for(const t of e.querySelectorAll("hui-sections-view,hui-view,hui-view-container"))if(t.shadowRoot){if("hui-sections-view"===t.localName&&t.shadowRoot.querySelector(".wrapper.has-sidebar-tabs .sidebar-tabs"))return!0;if(p(t.shadowRoot))return!0}return!1}class g{root;changed;style;resize;measured;wrapper;structural;active=!1;drawer;tabs;constructor(e,t){this.root=e,this.changed=t,this.drawer=new a(e,t),e.shadowRoot&&(this.structural=new MutationObserver(e=>{e.some(e=>!e.target.closest?.(`#${c}`))&&t()}),this.structural.observe(e.shadowRoot,{childList:!0,subtree:!0,attributes:!0,attributeFilter:["class"]}))}update(e,t){const i=function(e){const t=e.shadowRoot;if(!t)return;const i=t.querySelector(".header"),o=i?.parentElement,a=i?.querySelector('slot[name="toolbar"]'),r=a?.querySelector(".toolbar"),s=o&&[...o.children].find(e=>"hui-view-container"===e.localName&&"view"===e.id);if(!(i&&o&&o.parentNode===t&&a&&r&&r.parentNode===a&&s))return;if(a.assignedElements().length||!r.querySelector(".action-items"))return;const n=r.querySelector("ha-tab-group");if(n){const e=[...n.children].filter(e=>"nav"===e.getAttribute("slot"));if(!e.length||e.some(e=>"ha-tab-group-tab"!==e.localName))return}else if(!r.querySelector(".main-title"))return;return{wrapper:o,header:i,toolbar:r,view:s}}(this.root);if(!(e.enabled&&!t.escape&&("all"===e.scope||t.width<=767))||!i||!this.root.isConnected||i.wrapper.classList.contains("edit-mode")||this.root.lovelace?.editMode||p(i.view))return void this.restore();const o=i.wrapper.getBoundingClientRect(),a=Math.max(0,o.left),s=Math.min(t.width,o.right);if(s-a<180)return void this.restore();this.style?.isConnected||(this.style=this.root.ownerDocument.createElement("style"),this.style.id=c,this.style.textContent=r,this.root.shadowRoot.append(this.style)),this.root.setAttribute(d,u),this.root.toggleAttribute("data-liquid-glass-opaque",e.reduce_transparency),this.root.toggleAttribute("data-liquid-glass-dark",t.dark),this.root.toggleAttribute("data-liquid-glass-keyboard",t.keyboard),this.setProperty("--lgn-left",Math.round(100*a)/100+"px"),this.setProperty("--lgn-width",Math.round(100*(s-a))/100+"px"),this.root.hasAttribute("data-liquid-glass-collapsed")||this.setProperty("--lgn-height",`${Math.max(66,Math.ceil(i.header.getBoundingClientRect().height))}px`),this.active=!0,this.configureTabs(i.toolbar);const n=this.drawer.update(i.header,i.toolbar.querySelector("ha-menu-button"),t);n&&(this.setProperty("--lgn-collapse-left",`${n.left}px`),this.setProperty("--lgn-collapse-size",`${n.size}px`)),this.root.toggleAttribute("data-liquid-glass-collapsed",Boolean(n)),this.measured===i.header&&this.wrapper===i.wrapper||(this.resize?.disconnect(),"undefined"!=typeof ResizeObserver&&(this.resize=new ResizeObserver(this.changed),this.resize.observe(i.header),this.resize.observe(i.wrapper)),this.measured=i.header,this.wrapper=i.wrapper)}configureTabs(e){const t=e.querySelector("ha-tab-group");this.tabs?.element!==t&&this.restoreTabs(),t&&"boolean"==typeof t.withoutScrollControls&&(this.tabs||(this.tabs={element:t,original:t.withoutScrollControls}),t.withoutScrollControls||(t.withoutScrollControls=!0))}restoreTabs(){!0===this.tabs?.element.withoutScrollControls&&(this.tabs.element.withoutScrollControls=this.tabs.original),this.tabs=void 0}setProperty(e,t){this.root.style.getPropertyValue(e)!==t&&this.root.style.setProperty(e,t)}restore(){if(this.drawer.restore(),this.restoreTabs(),this.active||this.style){this.active=!1,this.style?.remove(),this.style=void 0,this.resize?.disconnect(),this.resize=void 0,this.measured=void 0,this.wrapper=void 0;for(const e of l)this.root.removeAttribute(e);for(const e of h)this.root.style.removeProperty(e)}}destroy(){this.restore(),this.structural?.disconnect(),this.drawer.destroy()}}const u="1";function b(e){try{Promise.resolve(e?.()).catch(()=>{})}catch{}}class v{doc;win;config={...n};adapters=new Map;observers=new Map;connection;unsubscribe;onDisconnected;onReady;generation=0;frame;health;stopped=!0;retryAfter=0;layoutHeight=0;layoutWidth=0;constructor(e=document,t=window){this.doc=e,this.win=t}start(){if(this.stopped){this.stopped=!1,this.layoutHeight=this.win.innerHeight,this.layoutWidth=this.win.innerWidth;for(const e of["resize","location-changed","popstate","focusin","focusout"])this.win.addEventListener(e,this.schedule);this.doc.addEventListener("visibilitychange",this.schedule),this.win.visualViewport?.addEventListener("resize",this.schedule),this.win.visualViewport?.addEventListener("scroll",this.schedule),this.health=this.win.setInterval(()=>{this.doc.hidden||this.schedule()},2e3),this.reconcile()}}schedule=()=>{this.stopped||void 0!==this.frame||(this.frame=this.win.requestAnimationFrame(()=>{this.frame=void 0,this.reconcile()}))};reconcile(){if(this.stopped)return;const{roots:e,scopes:t}=function(e){const t=new Set,i=new Set,o=e=>{if(!i.has(e)){i.add(e);for(const i of e.querySelectorAll("home-assistant,home-assistant-main,partial-panel-resolver,ha-panel-lovelace,hui-root"))"hui-root"!==i.localName?i.shadowRoot&&o(i.shadowRoot):t.add(i)}};return o(e),{roots:t,scopes:i}}(this.doc);for(const[e,i]of this.observers)t.has(e)||(i.disconnect(),this.observers.delete(e));for(const e of t)if(!this.observers.has(e)){const t=new MutationObserver(this.schedule);t.observe(e,{childList:!0,subtree:!0}),this.observers.set(e,t)}for(const[t,i]of this.adapters)e.has(t)||(i.destroy(),this.adapters.delete(t));for(const t of e)!this.adapters.has(t)&&t.shadowRoot&&this.adapters.set(t,new g(t,this.schedule));const i=this.doc.querySelector("home-assistant"),o=i?.hass?.connection;(o!==this.connection||o&&!this.unsubscribe&&Date.now()>=this.retryAfter)&&this.connect(o),this.apply(i)}apply(e=this.doc.querySelector("home-assistant")){const t=function(e){let t=e.activeElement;for(;t?.shadowRoot?.activeElement;)t=t.shadowRoot.activeElement;return t instanceof HTMLElement&&(!(!t.isContentEditable&&"textarea"!==t.localName)||"input"===t.localName&&!["button","submit","reset","checkbox","radio","range","color","file","hidden"].includes(t.type))}(this.doc);(!t||Math.abs(this.win.innerWidth-this.layoutWidth)>80)&&(this.layoutHeight=this.win.innerHeight,this.layoutWidth=this.win.innerWidth);const i=this.win.visualViewport?.height??this.win.innerHeight,o=t&&i<this.layoutHeight-140&&i<.8*this.layoutHeight,a="off"===new URL(this.win.location.href).searchParams.get("liquid_glass"),r=this.win.matchMedia("(prefers-color-scheme: dark)").matches;for(const[t,i]of this.adapters)i.update(this.config,{width:this.win.innerWidth,keyboard:o,escape:a,dark:t.hass?.themes?.darkMode??e?.hass?.themes?.darkMode??r})}async connect(e){if(this.disconnect(),this.connection=e,!e)return;const t=this.generation;this.retryAfter=Number.POSITIVE_INFINITY;const i=()=>!this.stopped&&e===this.connection&&t===this.generation;this.onDisconnected=()=>{i()&&(this.config={...n},this.restoreAll())},this.onReady=()=>{i()&&queueMicrotask(()=>{i()&&this.connect(e)})},e.addEventListener?.("disconnected",this.onDisconnected),e.addEventListener?.("ready",this.onReady);try{const i=await e.subscribeMessage(e=>{this.stopped||t!==this.generation||(this.config=function(e){if(!e||"object"!=typeof e)return{...n};const t=e;return"boolean"==typeof t.enabled&&["mobile","all"].includes(String(t.scope))&&"boolean"==typeof t.reduce_transparency&&"string"==typeof t.version?{enabled:t.enabled,scope:t.scope,reduce_transparency:t.reduce_transparency,version:t.version}:{...n}}(e),this.config.enabled?this.apply():this.restoreAll())},{type:"liquid_glass_navigation/subscribe"},{resubscribe:!1});if(this.stopped||t!==this.generation)return void b(i);this.unsubscribe=i}catch{if(t!==this.generation)return;this.config={...n},this.restoreAll(),this.retryAfter=Date.now()+1e4}}restoreAll(){for(const e of this.adapters.values())e.restore()}disconnect(){this.generation++,this.onDisconnected&&this.connection?.removeEventListener?.("disconnected",this.onDisconnected),this.onReady&&this.connection?.removeEventListener?.("ready",this.onReady),this.onDisconnected=void 0,this.onReady=void 0,b(this.unsubscribe),this.unsubscribe=void 0,this.connection=void 0,this.config={...n},this.restoreAll(),this.retryAfter=0}stop(){if(!this.stopped){this.stopped=!0,this.disconnect();for(const e of["resize","location-changed","popstate","focusin","focusout"])this.win.removeEventListener(e,this.schedule);this.doc.removeEventListener("visibilitychange",this.schedule),this.win.visualViewport?.removeEventListener("resize",this.schedule),this.win.visualViewport?.removeEventListener("scroll",this.schedule),void 0!==this.frame&&this.win.cancelAnimationFrame(this.frame),this.frame=void 0,this.win.clearInterval(this.health),this.health=void 0;for(const e of this.observers.values())e.disconnect();this.observers.clear();for(const e of this.adapters.values())e.destroy();this.adapters.clear()}}}const f=Symbol.for("liquid-glass-navigation.controller"),m=window,w=m[f];if(!w||w.version!==s){w?.controller.stop();const e=new v;m[f]={version:s,controller:e},e.start(),console.info(`LIQUID GLASS NAVIGATION ${s}`)}

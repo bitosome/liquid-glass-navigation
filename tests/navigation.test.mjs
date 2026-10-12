@@ -14,7 +14,7 @@ const ownStyle = root => root.shadowRoot.querySelector('#liquid-glass-navigation
 
 beforeEach(() => {
   win = new Window({url: 'https://home.example/lovelace/overview', width: 390, height: 844});
-  for (const name of ['window', 'document', 'HTMLElement', 'Element', 'HTMLInputElement', 'MutationObserver', 'ResizeObserver', 'Node']) {
+  for (const name of ['window', 'document', 'HTMLElement', 'Element', 'HTMLInputElement', 'MutationObserver', 'ResizeObserver', 'Node', 'ShadowRoot']) {
     Object.defineProperty(globalThis, name, {configurable: true, writable: true, value: name === 'window' ? win : name === 'document' ? win.document : win[name]});
   }
 });
@@ -163,6 +163,100 @@ test('repositioning preserves actual native nodes, click handlers, visibility an
   assert.equal(nativeHeader(root).header, header);
   tabs[0].click();
   assert.deepEqual(received, ['tab', 'menu', 'overflow', 'tab']);
+});
+
+test('native scroll controls are suppressed only while active and restore both original boolean values', () => {
+  for (const original of [false, true]) {
+    const {root, toolbar} = makeRoot();
+    const tabs = toolbar.querySelector('ha-tab-group');
+    tabs.withoutScrollControls = original;
+    const adapter = adapterFor(root);
+    adapter.update(enabled, viewport);
+    assert.equal(tabs.withoutScrollControls, true);
+    adapter.update(enabled, viewport);
+    adapter.update(DISABLED, viewport);
+    assert.equal(tabs.withoutScrollControls, original, 'repeated updates must not replace the captured original value');
+    assert.equal(active(root), false);
+    adapter.update(enabled, viewport);
+    assert.equal(tabs.withoutScrollControls, true);
+    adapter.restore();
+    assert.equal(tabs.withoutScrollControls, original);
+  }
+});
+
+test('native edit mode and adapter destruction restore the previous scroll-control preference', () => {
+  for (const original of [false, true]) {
+    for (const reason of ['wrapper edit mode', 'lovelace edit mode', 'destroy']) {
+      const {root, toolbar, wrapper} = makeRoot();
+      const tabs = toolbar.querySelector('ha-tab-group');
+      tabs.withoutScrollControls = original;
+      const adapter = adapterFor(root);
+      adapter.update(enabled, viewport);
+      assert.equal(tabs.withoutScrollControls, true);
+      if (reason === 'destroy') adapter.destroy();
+      else {
+        if (reason === 'wrapper edit mode') wrapper.classList.add('edit-mode');
+        else root.lovelace.editMode = true;
+        adapter.update(enabled, viewport);
+      }
+      assert.equal(tabs.withoutScrollControls, original, reason);
+      assert.equal(active(root), false, reason);
+    }
+  }
+});
+
+test('an unupgraded native tab group never gets a shadowing scroll-control property', () => {
+  const {root, toolbar} = makeRoot();
+  const tabs = toolbar.querySelector('ha-tab-group');
+  const adapter = adapterFor(root);
+  assert.equal('withoutScrollControls' in tabs, false);
+  adapter.update(enabled, viewport);
+  adapter.update(enabled, viewport);
+  assert.equal(Object.hasOwn(tabs, 'withoutScrollControls'), false);
+  assert.equal('withoutScrollControls' in tabs, false);
+  // Simulate the native property becoming available after custom-element upgrade.
+  tabs.withoutScrollControls = false;
+  adapter.update(enabled, viewport);
+  assert.equal(tabs.withoutScrollControls, true);
+  adapter.restore();
+  assert.equal(tabs.withoutScrollControls, false);
+});
+
+test('replacing the native tab group restores the old group and captures only known new preferences', () => {
+  for (const original of [false, true]) {
+    for (const replacementOriginal of [false, true, undefined]) {
+      const {root, toolbar} = makeRoot();
+      const oldTabs = toolbar.querySelector('ha-tab-group');
+      oldTabs.withoutScrollControls = original;
+      const adapter = adapterFor(root);
+      adapter.update(enabled, viewport);
+      const replacement = oldTabs.cloneNode(true);
+      if (replacementOriginal !== undefined) replacement.withoutScrollControls = replacementOriginal;
+      oldTabs.replaceWith(replacement);
+      adapter.update(enabled, viewport);
+      assert.equal(oldTabs.withoutScrollControls, original, 'the detached native group must be restored immediately');
+      if (replacementOriginal === undefined) assert.equal('withoutScrollControls' in replacement, false);
+      else assert.equal(replacement.withoutScrollControls, true);
+      adapter.destroy();
+      if (replacementOriginal === undefined) assert.equal(Object.hasOwn(replacement, 'withoutScrollControls'), false);
+      else assert.equal(replacement.withoutScrollControls, replacementOriginal);
+    }
+  }
+});
+
+test('cleanup respects a later external scroll-control preference instead of restoring over it', () => {
+  for (const stop of ['disable', 'edit', 'destroy']) {
+    const {root, toolbar} = makeRoot();
+    const tabs = toolbar.querySelector('ha-tab-group');
+    tabs.withoutScrollControls = true;
+    const adapter = adapterFor(root);
+    adapter.update(enabled, viewport);
+    tabs.withoutScrollControls = false;
+    if (stop === 'disable') adapter.update(DISABLED, viewport);
+    else if (stop === 'edit') { root.lovelace.editMode = true; adapter.update(enabled, viewport); }
+    else adapter.destroy();
+    assert.equal(tabs.withoutScrollControls, false, stop);
+  }
 });
 
 test('mobile scope restores stock above breakpoint; all scope honors sidebar content bounds', () => {

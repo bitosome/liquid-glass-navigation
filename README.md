@@ -7,9 +7,11 @@ This is a **HACS integration with a bundled frontend extension**, not a card you
 ## What stays native
 
 - Dashboard views, their order, icons, names and per-user visibility.
-- View navigation, browser history, modified clicks, keyboard navigation and horizontal tab scrolling.
+- View navigation, browser history, modified clicks, keyboard navigation and horizontal tab scrolling. Swipe or drag through tabs; arrow buttons are omitted to give the views more space.
 - Sidebar menu, subview Back button, search/Assist and the native overflow menu.
 - Adding, editing and rearranging views through Home Assistant's **Edit dashboard** interface.
+
+Opening the temporary sidebar contracts the bar into a glass menu circle beside the drawer. Tap it to close the sidebar and expand the bar again. The close circle belongs to the native modal drawer, so its focus, backdrop, Escape and swipe dismissal stay intact. Permanently docked sidebars keep the full bar.
 
 No second tab configuration, copied tab list, dashboard writes or replacement editor. Entering edit mode restores the standard top toolbar so Home Assistant's existing add/edit/move controls work as usual. Leaving edit mode restores the floating bar.
 
@@ -44,6 +46,7 @@ For a client-only escape, append `?liquid_glass=off` to the dashboard URL (or `&
 - Native edit mode, custom slotted toolbars, unknown header structure, and sections with their own bottom sidebar switcher retain the standard top bar.
 - Safe-area spacing keeps the bar above the phone home indicator and reserves room at the end of dashboard content. Text-entry keyboards temporarily hide the floating bar.
 - Light/dark themes, keyboard focus, reduced motion, reduced transparency, higher contrast and forced colors are supported. Unsupported blur falls back to an opaque surface.
+- The drawer circle requires the native modal drawer structure and browser Popover API, with enough room for a 44px minimum target beside the sidebar. Unknown layouts or very narrow remaining space retain native drawer dismissal.
 - Header replacement/kiosk extensions may conflict. Use one owner for the header; unsupported structures are left unchanged.
 
 This is a web implementation inspired by Apple's Liquid Glass guidance, not an Apple system material. Home Assistant does not provide a stable public API for repositioning its toolbar, so this project uses a narrow, reversible adapter for verified native DOM structure. It does not patch native render methods, reparent Lit-managed nodes, or intercept navigation handlers. Recheck compatibility after frontend upgrades.
@@ -68,6 +71,7 @@ The built frontend is committed at `custom_components/liquid_glass_navigation/ww
 | `src/controller.ts` | HA shell discovery, subscription/reconnect lifecycle and cleanup |
 | `src/adapter.ts` | Compatibility checks, measured geometry and reversible styling |
 | `src/styles.ts` | Floating glass treatment and accessibility fallbacks |
+| `src/drawer.ts` | Native drawer observation and the temporary modal close circle |
 | `tests/` | Synthetic DOM regression cases and actual Home Assistant backend tests |
 
 The project icon source is `branding/icon.svg`; the installable 256px PNG lives in the integration’s `brand/` directory.

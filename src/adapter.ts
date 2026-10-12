@@ -1,9 +1,10 @@
+import {DrawerAdapter} from './drawer.js';
 import {NAVIGATION_CSS} from './styles.js';
 import {MOBILE_MAX_WIDTH, type HassHost, type NavigationConfig} from './types.js';
 
 const ACTIVE = 'data-liquid-glass-navigation';
-const OWNED_ATTRIBUTES = [ACTIVE, 'data-liquid-glass-opaque', 'data-liquid-glass-dark', 'data-liquid-glass-keyboard'];
-const OWNED_PROPERTIES = ['--lgn-left', '--lgn-width', '--lgn-height'];
+const OWNED_ATTRIBUTES = [ACTIVE, 'data-liquid-glass-opaque', 'data-liquid-glass-dark', 'data-liquid-glass-keyboard', 'data-liquid-glass-collapsed'];
+const OWNED_PROPERTIES = ['--lgn-left', '--lgn-width', '--lgn-height', '--lgn-collapse-left', '--lgn-collapse-size'];
 const STYLE_ID = 'liquid-glass-navigation-style';
 export interface NativeHeader {wrapper: HTMLElement; header: HTMLElement; toolbar: HTMLElement; view: HTMLElement}
 
@@ -43,7 +44,10 @@ export class HeaderAdapter {
   private wrapper?: HTMLElement;
   private structural?: MutationObserver;
   private active = false;
+  private drawer: DrawerAdapter;
+  private tabs?: {element: HTMLElement & {withoutScrollControls: boolean}; original: boolean};
   constructor(readonly root: HassHost, private readonly changed: () => void) {
+    this.drawer = new DrawerAdapter(root, changed);
     if (root.shadowRoot) {
       this.structural = new MutationObserver(records => {
         if (records.some(record => !(record.target as Element).closest?.(`#${STYLE_ID}`))) changed();
@@ -73,8 +77,18 @@ export class HeaderAdapter {
     this.root.toggleAttribute('data-liquid-glass-keyboard', viewport.keyboard);
     this.setProperty('--lgn-left', `${Math.round(left * 100) / 100}px`);
     this.setProperty('--lgn-width', `${Math.round((right - left) * 100) / 100}px`);
-    this.setProperty('--lgn-height', `${Math.max(64, Math.ceil(native.header.getBoundingClientRect().height))}px`);
+    // Keep dashboard clearance stable while the bar morphs to/from the circle.
+    if (!this.root.hasAttribute('data-liquid-glass-collapsed')) {
+      this.setProperty('--lgn-height', `${Math.max(66, Math.ceil(native.header.getBoundingClientRect().height))}px`);
+    }
     this.active = true;
+    this.configureTabs(native.toolbar);
+    const collapsed = this.drawer.update(native.header, native.toolbar.querySelector('ha-menu-button'), viewport);
+    if (collapsed) {
+      this.setProperty('--lgn-collapse-left', `${collapsed.left}px`);
+      this.setProperty('--lgn-collapse-size', `${collapsed.size}px`);
+    }
+    this.root.toggleAttribute('data-liquid-glass-collapsed', Boolean(collapsed));
     if (this.measured !== native.header || this.wrapper !== native.wrapper) {
       this.resize?.disconnect();
       if (typeof ResizeObserver !== 'undefined') {
@@ -86,10 +100,26 @@ export class HeaderAdapter {
       this.wrapper = native.wrapper;
     }
   }
+  private configureTabs(toolbar: HTMLElement) {
+    const element = toolbar.querySelector<HTMLElement & {withoutScrollControls?: boolean}>('ha-tab-group');
+    if (this.tabs?.element !== element) this.restoreTabs();
+    // This public native property removes the controls and their reserved space.
+    // CSS supplies a safe fallback while the custom element is still upgrading.
+    if (!element || typeof element.withoutScrollControls !== 'boolean') return;
+    if (!this.tabs) this.tabs = {element: element as HTMLElement & {withoutScrollControls: boolean}, original: element.withoutScrollControls};
+    if (!element.withoutScrollControls) element.withoutScrollControls = true;
+  }
+  private restoreTabs() {
+    // Do not overwrite a later external false assignment during cleanup.
+    if (this.tabs?.element.withoutScrollControls === true) this.tabs.element.withoutScrollControls = this.tabs.original;
+    this.tabs = undefined;
+  }
   private setProperty(name: string, value: string) {
     if (this.root.style.getPropertyValue(name) !== value) this.root.style.setProperty(name, value);
   }
   restore() {
+    this.drawer.restore();
+    this.restoreTabs();
     if (!this.active && !this.style) return;
     this.active = false;
     this.style?.remove(); this.style = undefined;
@@ -97,6 +127,6 @@ export class HeaderAdapter {
     for (const attribute of OWNED_ATTRIBUTES) this.root.removeAttribute(attribute);
     for (const property of OWNED_PROPERTIES) this.root.style.removeProperty(property);
   }
-  destroy() { this.restore(); this.structural?.disconnect(); }
+  destroy() { this.restore(); this.structural?.disconnect(); this.drawer.destroy(); }
 }
 const VERSION_MARKER = '1';

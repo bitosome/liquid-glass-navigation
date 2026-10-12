@@ -1,7 +1,8 @@
 /**
  * Cosmetic adapter for Home Assistant's native hui-root header.
  * Structure/parts verified against frontend hui-root, ha-tab-group and
- * ha-tab-group-tab (2026.10). Do not clone, reparent or hide native controls.
+ * ha-tab-group-tab (2026.10). Native controls remain in their original DOM;
+ * scroll arrows and the modal-inert header hide only while the adapter owns them.
  * Every rule stops matching synchronously when HA enters its own edit mode.
  */
 export const NAVIGATION_CSS = String.raw`
@@ -50,6 +51,7 @@ export const NAVIGATION_CSS = String.raw`
       (var(--lgn-width, 100vw) - var(--lgn-safe-left) - var(--lgn-safe-right) - var(--lgn-bar-width)) / 2
     );
     width: var(--lgn-bar-width);
+    height: 66px;
     max-width: none;
     box-sizing: border-box;
     padding: 0;
@@ -64,6 +66,25 @@ export const NAVIGATION_CSS = String.raw`
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
     transform: none;
+    opacity: 1;
+    transition:
+      opacity 140ms ease,
+      left 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      width 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      height 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      border-radius 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  /* The same native header contracts behind the modal drawer. Its interactive
+     close accessory is owned by the drawer adapter inside the modal scope. */
+  :host([data-liquid-glass-navigation][data-liquid-glass-collapsed]) > div:not(.edit-mode) > .header {
+    left: var(--lgn-collapse-left, var(--lgn-left, 0px));
+    width: var(--lgn-collapse-size, 64px);
+    height: var(--lgn-collapse-size, 64px);
+    border-radius: calc(var(--lgn-collapse-size, 64px) / 2);
+    /* Only the modal accessory paints here; avoid doubled glass and shadows. */
+    opacity: 0;
+    pointer-events: none;
   }
 
   /* The controller sets this only for an editable focus and a visible keyboard. */
@@ -96,6 +117,40 @@ export const NAVIGATION_CSS = String.raw`
     border: 0;
     color: inherit;
     background: transparent;
+    transition: height 240ms ease, min-height 240ms ease, padding 240ms ease;
+  }
+
+  :host([data-liquid-glass-navigation][data-liquid-glass-collapsed]) > div:not(.edit-mode) > .header .toolbar {
+    height: calc(var(--lgn-collapse-size, 64px) - 2px);
+    min-height: calc(var(--lgn-collapse-size, 64px) - 2px);
+    padding: calc((var(--lgn-collapse-size, 64px) - 46px) / 2);
+    gap: 0;
+    justify-content: center;
+  }
+
+  :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header ha-tab-group,
+  :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header .action-items,
+  :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header .main-title {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 120ms ease 90ms;
+  }
+
+  /* Hidden controls cannot receive focus or spill outside the shrinking shell.
+     On expansion they fade back after the capsule has room for its contents. */
+  :host([data-liquid-glass-navigation][data-liquid-glass-collapsed]) > div:not(.edit-mode) > .header ha-tab-group,
+  :host([data-liquid-glass-navigation][data-liquid-glass-collapsed]) > div:not(.edit-mode) > .header .action-items,
+  :host([data-liquid-glass-navigation][data-liquid-glass-collapsed]) > div:not(.edit-mode) > .header .main-title {
+    flex: 0 0 0;
+    width: 0;
+    min-width: 0;
+    max-width: 0;
+    margin: 0;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: none;
   }
 
   :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header .main-title {
@@ -162,38 +217,10 @@ export const NAVIGATION_CSS = String.raw`
     padding: 0;
   }
 
-  /* Native arrows remain conditional and clickable, but consume layout space
-     instead of covering edge tabs. The inner overflow-auto nav flexes between
-     them. HA ties the plain-button quiet colour to the underline, which is
-     transparent here; override that token at the button, not just host color. */
+  /* The adapter enables native without-scroll-controls. This prevents a flash
+     before the component reacts; native swipe/drag and keyboard behavior stay. */
   :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header ha-tab-group::part(scroll-button) {
-    --wa-color-neutral-on-quiet: var(--primary-text-color, #1c1c1e);
-    --wa-color-on-quiet: var(--primary-text-color, #1c1c1e);
-    position: static;
-    flex: 0 0 44px;
-    width: 44px;
-    min-width: 44px;
-    height: 48px;
-    margin: 0;
-    padding: 0;
-    inset: auto;
-    border-radius: 24px;
-    color: var(--primary-text-color, #1c1c1e);
-    background: transparent;
-  }
-
-  :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header ha-tab-group::part(scroll-button__base) {
-    box-sizing: border-box;
-    width: 44px;
-    min-width: 44px;
-    height: 48px;
-    min-height: 48px;
-    margin: 0;
-    padding: 0;
-    border: 0;
-    border-radius: 24px;
-    color: var(--primary-text-color, #1c1c1e);
-    background: transparent;
+    display: none;
   }
 
   :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header ha-tab-group-tab {
@@ -289,6 +316,13 @@ export const NAVIGATION_CSS = String.raw`
   }
 
   @media (prefers-reduced-motion: reduce) {
+    :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header,
+    :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header .toolbar,
+    :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header ha-tab-group,
+    :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header .action-items,
+    :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header .main-title {
+      transition: none;
+    }
     :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header ha-tab-group-tab::part(base) {
       transition: none;
       animation: none;
@@ -308,16 +342,6 @@ export const NAVIGATION_CSS = String.raw`
       background: Canvas;
       -webkit-backdrop-filter: none;
       backdrop-filter: none;
-    }
-    :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header ha-tab-group::part(scroll-button) {
-      --wa-color-neutral-on-quiet: ButtonText;
-      --wa-color-on-quiet: ButtonText;
-      color: ButtonText;
-      background: ButtonFace;
-    }
-    :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header ha-tab-group::part(scroll-button__base) {
-      color: ButtonText;
-      background: ButtonFace;
     }
     :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header ha-tab-group-tab[active]:not([disabled])::part(base),
     :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header ha-tab-group-tab[aria-selected="true"]:not([disabled])::part(base) {
