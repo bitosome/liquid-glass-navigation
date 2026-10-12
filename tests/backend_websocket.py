@@ -67,8 +67,17 @@ async def test_multiple_clients_share_identical_settings(hass, navigation_entry,
 
 async def test_unauthenticated_socket_cannot_subscribe(hass, navigation_entry, hass_client_no_auth):
     client = await hass_client_no_auth()
-    socket = await client.ws_connect("/api/websocket")
-    assert (await socket.receive_json())["type"] == "auth_required"
-    await socket.send_json({"type": "auth", "access_token": "invalid-test-token"})
-    assert (await socket.receive_json())["type"] == "auth_invalid"
-    assert not hass.data[DOMAIN].listeners
+    try:
+        socket = await client.ws_connect("/api/websocket")
+        try:
+            assert (await socket.receive_json())["type"] == "auth_required"
+            await socket.send_json({"type": "auth", "access_token": "invalid-test-token"})
+            assert (await socket.receive_json())["type"] == "auth_invalid"
+            assert not hass.data[DOMAIN].listeners
+        finally:
+            # Await the rejected connection's close handshake before HA's
+            # teardown checks for outstanding websocket heartbeat timers.
+            await socket.close()
+    finally:
+        await client.close()
+        await hass.async_block_till_done()
