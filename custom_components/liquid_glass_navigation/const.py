@@ -3,10 +3,11 @@ from collections.abc import Mapping
 from typing import Any
 
 DOMAIN = "liquid_glass_navigation"
-VERSION = "0.1.0"
+VERSION = "0.1.1"
 TITLE = "Liquid Glass Navigation"
-MODULE_PATH = "/liquid_glass_navigation/liquid-glass-navigation.js"
-MODULE_URL = f"{MODULE_PATH}?v={VERSION}"
+# Give each release a new path, including through caches that ignore query strings.
+MODULE_PATH = f"/{DOMAIN}/{VERSION}/liquid-glass-navigation.js"
+MODULE_URL = MODULE_PATH
 SUBSCRIBE = f"{DOMAIN}/subscribe"
 SCOPES = ("mobile", "all")
 DEFAULT_OPTIONS = {"enabled": True, "scope": "mobile", "reduce_transparency": False}

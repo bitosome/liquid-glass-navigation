@@ -1,4 +1,4 @@
-export const VERSION = '0.1.0';
+export const VERSION = '0.1.1';
 export const MOBILE_MAX_WIDTH = 767;
 export interface NavigationConfig {
   enabled: boolean;

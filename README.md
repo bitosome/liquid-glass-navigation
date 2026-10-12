@@ -25,6 +25,10 @@ No second tab configuration, copied tab list, dashboard writes or replacement ed
 
 The default mobile scope is a viewport up to 767 CSS pixels wide. All-screen mode centers the bar within the dashboard content, respecting the sidebar. Nine or more views remain horizontally scrollable; they are never squeezed into tiny buttons.
 
+## Updating
+
+Each deployed update must use a new version across the integration, package and frontend. The module URL includes that version in its path, so browser/proxy caches request a new asset and the frontend replaces an older running controller. After updating the integration files, restart Home Assistant to load the new Python code and module route, then reload the dashboard. Reloading the config entry alone does not load updated Python modules. Do not overwrite a deployed build under the same version.
+
 ## Settings and recovery
 
 Use the integration's native **Configure** dialog:

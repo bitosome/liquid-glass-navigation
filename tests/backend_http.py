@@ -1,11 +1,12 @@
 """Exercise the packaged module through Home Assistant's real static handler."""
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from homeassistant.components import frontend
 from homeassistant.setup import async_setup_component
 from pytest_homeassistant_custom_component.common import MockConfigEntry, mock_component
 
-from custom_components.liquid_glass_navigation.const import DOMAIN, MODULE_URL
+from custom_components.liquid_glass_navigation.const import DOMAIN, MODULE_URL, VERSION
 
 
 async def test_bundled_module_is_served_and_native_extra_module_manager_is_reversible(
@@ -22,6 +23,9 @@ async def test_bundled_module_is_served_and_native_extra_module_manager_is_rever
     entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(entry.entry_id)
     await hass.async_block_till_done()
+    # Updating a release must change the cache key even without query strings.
+    assert VERSION in urlsplit(MODULE_URL).path.split("/")
+    assert not urlsplit(MODULE_URL).query
     assert changes == [("added", MODULE_URL)]
     assert urls.urls == frozenset({"/unrelated-module.js", MODULE_URL})
     bundle = Path(__file__).parents[1] / "custom_components" / DOMAIN / "www" / "liquid-glass-navigation.js"

@@ -9,6 +9,9 @@ COMPONENT = ROOT / 'custom_components' / 'liquid_glass_navigation'
 manifest = json.loads((COMPONENT / 'manifest.json').read_text())
 package = json.loads((ROOT / 'package.json').read_text())
 version = package['version']
+lock = json.loads((ROOT / 'package-lock.json').read_text())
+assert lock['version'] == version
+assert lock['packages']['']['version'] == version
 assert manifest['version'] == version
 assert manifest['domain'] == 'liquid_glass_navigation'
 assert manifest['config_flow'] is True
