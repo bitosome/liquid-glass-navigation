@@ -1,3 +1,4 @@
+import {SectionsSpacingAdapter} from './view-spacing.js';
 import {DrawerAdapter} from './drawer.js';
 import {NAVIGATION_CSS} from './styles.js';
 import {MOBILE_MAX_WIDTH, type HassHost, type NavigationConfig} from './types.js';
@@ -45,6 +46,7 @@ export class HeaderAdapter {
   private structural?: MutationObserver;
   private active = false;
   private drawer: DrawerAdapter;
+  private spacing = new SectionsSpacingAdapter();
   private tabs?: {element: HTMLElement & {withoutScrollControls: boolean}; original: boolean};
   constructor(readonly root: HassHost, private readonly changed: () => void) {
     this.drawer = new DrawerAdapter(root, changed);
@@ -83,6 +85,7 @@ export class HeaderAdapter {
     }
     this.active = true;
     this.configureTabs(native.toolbar);
+    this.spacing.update(native.view);
     const collapsed = this.drawer.update(native.header, native.toolbar.querySelector('ha-menu-button'), viewport);
     if (collapsed) {
       this.setProperty('--lgn-collapse-left', `${collapsed.left}px`);
@@ -119,6 +122,7 @@ export class HeaderAdapter {
   }
   restore() {
     this.drawer.restore();
+    this.spacing.restore();
     this.restoreTabs();
     if (!this.active && !this.style) return;
     this.active = false;

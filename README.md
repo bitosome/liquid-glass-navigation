@@ -48,7 +48,7 @@ For a client-only escape, append `?liquid_glass=off` to the dashboard URL (or `&
 - Minimum Home Assistant **2026.10.0**. The native adapter is verified against frontend **20260930.2**, pinned by that Core release.
 - Normal Lovelace views, single-view dashboards and subviews retain their existing controls. Other Home Assistant panels are untouched.
 - Native edit mode, custom slotted toolbars, unknown header structure, and sections with their own bottom sidebar switcher retain the standard top bar.
-- Safe-area spacing keeps the bar above the phone home indicator and reserves room at the end of dashboard content. Text-entry keyboards temporarily hide the floating bar.
+- Safe-area spacing keeps the bar above the phone home indicator and reserves room at the end of dashboard content. Empty-header Sections views use a compact 8px leading gutter beneath the status-bar safe area; configured headers, badges, explicit top margins and bottom clearance are preserved. Text-entry keyboards temporarily hide the floating bar.
 - Light/dark themes, keyboard focus, reduced motion, reduced transparency, higher contrast and forced colors are supported. Unsupported blur falls back to an opaque surface.
 - The drawer circle requires the native modal drawer structure and browser Popover API, with enough room for a 44px minimum target beside the sidebar. Unknown layouts or very narrow remaining space retain native drawer dismissal.
 - Header replacement/kiosk extensions may conflict. Use one owner for the header; unsupported structures are left unchanged.
@@ -75,6 +75,7 @@ The built frontend is committed at `custom_components/liquid_glass_navigation/ww
 | `src/controller.ts` | HA shell discovery, subscription/reconnect lifecycle and cleanup |
 | `src/adapter.ts` | Compatibility checks, measured geometry and reversible styling |
 | `src/styles.ts` | Floating glass treatment and accessibility fallbacks |
+| `src/view-spacing.ts` | Reversible leading-gutter adjustment for native Sections layouts |
 | `src/drawer.ts` | Native drawer observation and the temporary modal close circle |
 | `tests/` | Synthetic DOM regression cases and actual Home Assistant backend tests |
 

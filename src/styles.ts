@@ -7,6 +7,7 @@
  */
 export const NAVIGATION_CSS = String.raw`
   :host([data-liquid-glass-navigation]) > div:not(.edit-mode) {
+    --lgn-empty-sections-top: 8px;
     --lgn-safe-top: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
     --lgn-safe-right: var(--safe-area-inset-right, env(safe-area-inset-right, 0px));
     --lgn-safe-bottom: var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
@@ -380,5 +381,14 @@ export const NAVIGATION_CSS = String.raw`
       border-color: Highlight;
       forced-color-adjust: none;
     }
+  }
+`;
+
+/** Only the leading gutter of a native Sections view without visible header. */
+export const SECTIONS_SPACING_CSS = String.raw`
+  :host([data-liquid-glass-sections]) > .wrapper:not(.top-margin):not(.has-sidebar-tabs) > hui-view-header[hidden] + .container {
+    /* The active root supplies 8px. Edit/disable immediately restores row-gap,
+       even before the adapter removes this style; all other spacing is native. */
+    padding-top: min(var(--lgn-empty-sections-top, var(--row-gap, 24px)), var(--row-gap, 24px));
   }
 `;

@@ -3,7 +3,7 @@ from collections.abc import Mapping
 from typing import Any
 
 DOMAIN = "liquid_glass_navigation"
-VERSION = "0.1.2"
+VERSION = "0.1.3"
 TITLE = "Liquid Glass Navigation"
 # Give each release a new path, including through caches that ignore query strings.
 MODULE_PATH = f"/{DOMAIN}/{VERSION}/liquid-glass-navigation.js"
