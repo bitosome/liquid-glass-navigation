@@ -208,13 +208,29 @@ export const NAVIGATION_CSS = String.raw`
     padding: 0;
     border: 0;
     align-items: center;
+    /* Fade the fixed viewport, not the moving tabs or the menu buttons.
+       A mask lets the actual glass show through without an opaque overlay. */
+    -webkit-mask-image: linear-gradient(to right,
+      transparent, rgba(0, 0, 0, 0.2) 3px, rgba(0, 0, 0, 0.75) 9px, #000 14px,
+      #000 calc(100% - 14px), rgba(0, 0, 0, 0.75) calc(100% - 9px),
+      rgba(0, 0, 0, 0.2) calc(100% - 3px), transparent);
+    mask-image: linear-gradient(to right,
+      transparent, rgba(0, 0, 0, 0.2) 3px, rgba(0, 0, 0, 0.75) 9px, #000 14px,
+      #000 calc(100% - 14px), rgba(0, 0, 0, 0.75) calc(100% - 9px),
+      rgba(0, 0, 0, 0.2) calc(100% - 3px), transparent);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
   }
 
   :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header ha-tab-group::part(tabs) {
     gap: 4px;
     align-items: center;
     min-height: 52px;
-    padding: 0;
+    /* End space scrolls with the list, keeping the first/last pill fully visible. */
+    padding: 0 14px;
+    box-sizing: border-box;
   }
 
   /* The adapter enables native without-scroll-controls. This prevents a flash
@@ -329,6 +345,20 @@ export const NAVIGATION_CSS = String.raw`
     }
     :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header ha-tab-group::part(nav) {
       scroll-behavior: auto;
+    }
+  }
+
+  /* Keep focus and high-contrast tab boundaries completely legible. */
+  :host([data-liquid-glass-navigation][data-liquid-glass-opaque]) > div:not(.edit-mode) > .header ha-tab-group::part(nav),
+  :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header ha-tab-group:has(ha-tab-group-tab:focus-visible)::part(nav) {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  @media (prefers-reduced-transparency: reduce), (prefers-contrast: more), (forced-colors: active) {
+    :host([data-liquid-glass-navigation]) > div:not(.edit-mode) > .header ha-tab-group::part(nav) {
+      -webkit-mask-image: none;
+      mask-image: none;
     }
   }
 

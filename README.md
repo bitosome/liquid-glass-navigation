@@ -7,7 +7,7 @@ This is a **HACS integration with a bundled frontend extension**, not a card you
 ## What stays native
 
 - Dashboard views, their order, icons, names and per-user visibility.
-- View navigation, browser history, modified clicks, keyboard navigation and horizontal tab scrolling. Swipe or drag through tabs; arrow buttons are omitted to give the views more space.
+- View navigation, browser history, modified clicks, keyboard navigation and horizontal tab scrolling. Swipe or drag through tabs; arrow buttons are omitted to give the views more space. Tabs fade gently at the viewport edges beside the fixed menu buttons; end spacing keeps the first and last tab fully visible. Keyboard focus and high-contrast modes retain sharp boundaries.
 - Sidebar menu, subview Back button, search/Assist and the native overflow menu.
 - Adding, editing and rearranging views through Home Assistant's **Edit dashboard** interface.
 
