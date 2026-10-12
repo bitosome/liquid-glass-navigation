@@ -1,0 +1,51 @@
+{
+  "title": "Liquid Glass Navigation",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Liquid Glass Navigation",
+        "description": "Move the native dashboard navigation to a floating bottom bar. View names, order and visibility stay managed in Home Assistant. The original header remains available during editing.",
+        "data": {
+          "enabled": "Enable floating navigation",
+          "scope": "Show floating navigation on",
+          "reduce_transparency": "Reduce transparency"
+        },
+        "data_description": {
+          "enabled": "Restore the original header immediately when turned off.",
+          "scope": "These settings apply to everyone. Dashboard views are still managed in Home Assistant.",
+          "reduce_transparency": "Use a more opaque background for easier reading."
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Liquid Glass Navigation is already configured. Open its options to make changes.",
+      "single_instance_allowed": "Only one Liquid Glass Navigation configuration is needed. Open its options to make changes."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Navigation appearance",
+        "description": "Changes apply to all users and open dashboards immediately.",
+        "data": {
+          "enabled": "Enable floating navigation",
+          "scope": "Show floating navigation on",
+          "reduce_transparency": "Reduce transparency"
+        },
+        "data_description": {
+          "enabled": "Restore the original header immediately when turned off.",
+          "scope": "These settings apply to everyone. Dashboard views are still managed in Home Assistant.",
+          "reduce_transparency": "Use a more opaque background for easier reading."
+        }
+      }
+    }
+  },
+  "selector": {
+    "scope": {
+      "options": {
+        "mobile": "Mobile screens only",
+        "all": "All screens"
+      }
+    }
+  }
+}

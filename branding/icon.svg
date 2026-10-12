@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <title>Liquid Glass Navigation</title>
+  <rect x="8" y="70" width="240" height="116" rx="58" fill="#242a3e"/>
+  <rect x="11" y="73" width="234" height="110" rx="55" fill="none" stroke="#7885a8" stroke-width="3"/>
+  <rect x="26" y="90" width="76" height="76" rx="38" fill="#c6d6ff"/>
+  <path d="M48 126l16-14 16 14v19H69v-13H59v13H48z" fill="#242a3e"/>
+  <circle cx="144" cy="128" r="10" fill="#aeb9d4"/>
+  <circle cx="206" cy="128" r="10" fill="#aeb9d4"/>
+</svg>

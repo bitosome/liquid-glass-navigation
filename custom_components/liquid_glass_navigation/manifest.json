@@ -1,0 +1,20 @@
+{
+  "domain": "liquid_glass_navigation",
+  "name": "Liquid Glass Navigation",
+  "codeowners": [
+    "@bitosome"
+  ],
+  "config_flow": true,
+  "dependencies": [
+    "frontend",
+    "http",
+    "websocket_api"
+  ],
+  "documentation": "https://github.com/bitosome/liquid-glass-navigation",
+  "integration_type": "service",
+  "iot_class": "local_push",
+  "issue_tracker": "https://github.com/bitosome/liquid-glass-navigation/issues",
+  "requirements": [],
+  "single_config_entry": true,
+  "version": "0.1.0"
+}
