@@ -1,4 +1,8 @@
 """Real authenticated websocket subscriptions and native options permission gates."""
+import asyncio
+from unittest.mock import patch
+
+from aiohttp import WSMsgType, web
 from homeassistant.components import frontend
 from homeassistant.components.config import config_entries as config_views
 
@@ -67,13 +71,29 @@ async def test_multiple_clients_share_identical_settings(hass, navigation_entry,
 
 async def test_unauthenticated_socket_cannot_subscribe(hass, navigation_entry, hass_client_no_auth):
     client = await hass_client_no_auth()
+    response_type = web.WebSocketResponse
+
+    def auth_test_socket(*args, **kwargs):
+        # aiohttp 3.14.4 can schedule a new heartbeat for the close acknowledgement
+        # after cancelling it on rejected authentication. This test verifies HA's
+        # real auth boundary, not native socket liveness; keep heartbeat enabled
+        # in all authenticated lifecycle/subscription tests above.
+        kwargs["heartbeat"] = None
+        return response_type(*args, **kwargs)
+
     try:
-        socket = await client.ws_connect("/api/websocket")
+        with patch("homeassistant.components.websocket_api.http.web.WebSocketResponse", auth_test_socket):
+            socket = await client.ws_connect("/api/websocket")
         try:
             assert (await socket.receive_json())["type"] == "auth_required"
             await socket.send_json({"type": "auth", "access_token": "invalid-test-token"})
             assert (await socket.receive_json())["type"] == "auth_invalid"
             assert not hass.data[DOMAIN].listeners
+            # The server closes a rejected socket after sending auth_invalid.
+            # Receive that close before tearing down the HTTP test server so
+            # its handler can cancel its heartbeat (also on slower CI runners).
+            closing = await asyncio.wait_for(socket.receive(), timeout=5)
+            assert closing.type in (WSMsgType.CLOSE, WSMsgType.CLOSED)
         finally:
             # Await the rejected connection's close handshake before HA's
             # teardown checks for outstanding websocket heartbeat timers.
